@@ -39,7 +39,7 @@ namespace Potion {
         public Vertex() {
             position = new float[3];
             normal = new float[3];
-            rgba = new char[4];
+            rgba = new byte[4];
 
             uv = new float[2];
             st = new float[2];
@@ -60,7 +60,7 @@ namespace Potion {
         public Vector2 UVToVector2() {
             Vector2 _uv = new Vector2(
                 uv[ 0 ],
-                uv[ 1 ]
+                1 - uv[ 1 ]
             );
 
             return _uv;
@@ -68,7 +68,7 @@ namespace Potion {
 
         public float[] position;
         public float[] normal;
-        public char[] rgba;
+        public byte[] rgba;
 
         public float[] uv;
         public float[] st;
@@ -82,8 +82,6 @@ namespace Potion {
     }
 
     public class Bla : MonoBehaviour {
-
-        public Texture[] Textures; // :<
 
         Dictionary<int, string> lumpNames;
 
@@ -141,7 +139,7 @@ namespace Potion {
             Triangles = new List<Triangle>();
             TriangleSoups = new List<TriangleSoup>();
 
-            using( fs = new FileStream( "Assets/Resources/mp_carentan.d3dbsp", FileMode.Open, FileAccess.Read ) ) 
+            using( fs = new FileStream( "Assets/Resources/mp_toujane.d3dbsp", FileMode.Open, FileAccess.Read ) ) 
             {
                 using( br = new BinaryReader( fs, new ASCIIEncoding() ) ) 
                 {
@@ -246,22 +244,23 @@ namespace Potion {
                 v.position[2] = br.ReadSingle(); // switch Y and Z, diffrent engine
                 v.position[1] = br.ReadSingle();
 
-                /*v.normal[0] = br.ReadSingle();
+                v.normal[0] = br.ReadSingle();
                 v.normal[1] = br.ReadSingle();
                 v.normal[2] = br.ReadSingle();
 
-                v.rgba[0] = br.ReadChar();
-                v.rgba[1] = br.ReadChar();
-                v.rgba[2] = br.ReadChar();
-                v.rgba[3] = br.ReadChar();
+                v.rgba[0] = br.ReadByte();
+                v.rgba[1] = br.ReadByte();
+                v.rgba[2] = br.ReadByte();
+                v.rgba[3] = br.ReadByte();
 
                 v.uv[0] = br.ReadSingle();
                 v.uv[1] = br.ReadSingle();
 
                 v.st[0] = br.ReadSingle();
-                v.st[1] = br.ReadSingle();*/
+                v.st[1] = br.ReadSingle();
 
-                br.BaseStream.Seek( 56, SeekOrigin.Current );
+                // Unknown.. skip. Texture rotation?
+                br.BaseStream.Seek( 24, SeekOrigin.Current );
 
                 Vertices.Add( v );
             }
@@ -282,9 +281,11 @@ namespace Potion {
         }
 
         void CreateMeshMagic() {
+
             FillSoupsList();
             FillVerticesList();
             FillTrianglesList();
+            FillMaterialList();
 
             List<Vector3> vertices = new List<Vector3>();
             List<Vector2> uvs = new List<Vector2>();
@@ -326,8 +327,14 @@ namespace Potion {
                         uvs.Add( uv );
                     }
 
-                    if( vertices.Count > 30000 )
+                    #region obsolete?
+                    /*if( vertices.Count > 30000 )
                     {
+                        // Get texture from folder. Get material component. Set texture to component
+                        Renderer r = go.GetComponent<Renderer>();
+                        string path = "Textures/images/";
+                        r.material.mainTexture = Resources.Load<Texture>( path + Materials[currentSoup.material_id].Name );
+
                         m.vertices = vertices.ToArray();
                         m.triangles = triangleIndices.ToArray();
                         m.uv = uvs.ToArray();
@@ -339,16 +346,36 @@ namespace Potion {
                         uvs.Clear();
 
                         go = GameObject.CreatePrimitive( PrimitiveType.Cube );
+                        go.AddComponent<MeshCollider>();
 
                         m = new Mesh();
                         go.GetComponent<MeshFilter>().mesh = m;
-                    }
+                    }*/
+                    
+                    #endregion
                 }
 
                 if( vertices.Count > 0 )
                 {
-                    // TODO:
                     // Get texture from folder. Get material component. Set texture to component
+                    string path = "Textures/images/";
+
+                    Renderer r = go.GetComponent<Renderer>();
+                    string matName = Materials[currentSoup.material_id].Name;
+
+                    Texture possibleT = Resources.Load<Texture>( path + matName );
+
+                    if( possibleT == null )
+                    {
+                        Debug.Log( "WTF... " + Materials[currentSoup.material_id].Name );
+                    }
+
+                    r.material.mainTexture = possibleT;
+                    r.material.renderQueue = currentSoup.draw_order;
+
+                                                                        // noDraw
+                    if( ( Materials[currentSoup.material_id].flags & 0x0000000100000080 ) == 0 )
+                        go.SetActive( false );
 
                     m.vertices = vertices.ToArray();
                     m.triangles = triangleIndices.ToArray();
