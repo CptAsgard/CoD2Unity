@@ -57,6 +57,15 @@ namespace Potion {
             return pos;
         }
 
+        public Vector2 UVToVector2() {
+            Vector2 _uv = new Vector2(
+                uv[ 0 ],
+                uv[ 1 ]
+            );
+
+            return _uv;
+        }
+
         public float[] position;
         public float[] normal;
         public char[] rgba;
@@ -73,6 +82,8 @@ namespace Potion {
     }
 
     public class Bla : MonoBehaviour {
+
+        public Texture[] Textures; // :<
 
         Dictionary<int, string> lumpNames;
 
@@ -125,7 +136,7 @@ namespace Potion {
             };
 
             Lumps = new List<Lump>();
-
+            Materials = new List<MapMaterial>();
             Vertices = new List<Vertex>();
             Triangles = new List<Triangle>();
             TriangleSoups = new List<TriangleSoup>();
@@ -200,6 +211,9 @@ namespace Potion {
                 MapMaterial m = new MapMaterial();
 
                 m.Name = Encoding.ASCII.GetString( br.ReadBytes(64) );
+                m.flags = br.ReadInt64();
+
+                Materials.Add( m );
             }
         }
 
@@ -273,6 +287,8 @@ namespace Potion {
             FillTrianglesList();
 
             List<Vector3> vertices = new List<Vector3>();
+            List<Vector2> uvs = new List<Vector2>();
+
             List<int> triangleIndices = new List<int>();
 
             // 1 soup per material/mesh
@@ -303,20 +319,24 @@ namespace Potion {
                         int offset = (int) tri.indexes[vert_loop];
 
                         Vector3 pos = this.Vertices[(int) currentSoup.vertex_offset + offset].PositionToVector3();
+                        Vector2 uv = this.Vertices[ (int) currentSoup.vertex_offset + offset ].UVToVector2();
 
                         triangleIndices.Add( vertices.Count );
                         vertices.Add( pos );
+                        uvs.Add( uv );
                     }
 
                     if( vertices.Count > 30000 )
                     {
                         m.vertices = vertices.ToArray();
                         m.triangles = triangleIndices.ToArray();
+                        m.uv = uvs.ToArray();
 
                         m.RecalculateNormals();
 
                         vertices.Clear();
                         triangleIndices.Clear();
+                        uvs.Clear();
 
                         go = GameObject.CreatePrimitive( PrimitiveType.Cube );
 
@@ -328,17 +348,17 @@ namespace Potion {
                 if( vertices.Count > 0 )
                 {
                     // TODO:
-                    // Set texture
                     // Get texture from folder. Get material component. Set texture to component
-                    // Get UVs from vertex and add to mesh
 
                     m.vertices = vertices.ToArray();
                     m.triangles = triangleIndices.ToArray();
+                    m.uv = uvs.ToArray();
 
                     m.RecalculateNormals();
 
                     vertices.Clear();
                     triangleIndices.Clear();
+                    uvs.Clear();
                 }
                 else
                 {
