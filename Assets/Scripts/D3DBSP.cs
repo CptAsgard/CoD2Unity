@@ -241,7 +241,7 @@ namespace Potion {
                 Vertex v = new Vertex();
 
                 v.position[0] = br.ReadSingle();
-                v.position[2] = br.ReadSingle(); // switch Y and Z, diffrent engine
+                v.position[2] = br.ReadSingle(); // switch Y and Z, different engine
                 v.position[1] = br.ReadSingle();
 
                 v.normal[0] = br.ReadSingle();
@@ -358,7 +358,8 @@ namespace Potion {
 
                 if( vertices.Count > 0 )
                 {
-                    // Get texture from folder. Get material component. Set texture to component
+                    #region OBSOLETE
+                    /*// Get texture from folder. Get material component. Set texture to component
                     string path = "Textures/images/";
 
                     Renderer r = go.GetComponent<Renderer>();
@@ -373,8 +374,10 @@ namespace Potion {
 
                     r.material.mainTexture = possibleT;
                     r.material.renderQueue = currentSoup.draw_order;
+                    */
+                    #endregion
 
-                                                                        // noDraw
+                                                                     // noDraw
                     if( ( Materials[currentSoup.material_id].flags & 0x0000000100000080 ) == 0 )
                         go.SetActive( false );
 

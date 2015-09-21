@@ -1,0 +1,41 @@
+Material File - v_corefloor01 used as example
+
+DWORDs are little endian:
+
+#01 DWORD 					< index to the material name
+#02 DWORD 					< index to color texture name
+#03 DWORD - 00 00 00 00				< UNKNOWN
+#04 DWORD - 03 03 01 01 -         - 512         < texture size
+#05 DWORD - 00 00 00 00 -         - 0, 0	< UNKNOWN, padding?
+#06 shor2 - 00 08 10 00 - 1050624 - 2048, 16	< UNKNOWN, texture UV?
+#07 shor2 - 00 20 00 00 - 8192    - 8192, 0	< UNKNOWN, texture ST?
+#08 shor2 - 00 01 20 00 - 2097408 - 256, 32     < texture size dimensions
+#09 DWORD - 00 00 00 00 -         - 0, 0	< UNKNOWN, padding?
+#10 DWORD - 00 00 50 01 - 22020096- 0, 336 	< UNKNOWN
+#11 DWORD - 01 00 00 00 - 1       - 0, 16	< UNKNOWN
+#12 DWORD - 12 88 12 28 - 672303122		< UNKNOWN
+#13 DWORD - 05 00 00 00 - 5			< UNKNOWN
+#14 DWORD - 03 00 00 00 - 3			< UNKNOWN
+#15 DWORD - 68 00 00 00 - 			< index to techniqueset name
+#16 DWORD - 44 00 00 00 - 			< UNKNOWN
+#17 DWORD - 68 00 00 00 - 			< index to shader name
+#18 DWORD - 99 00 00 00 -			< index to 'colorMap'
+#19 DWORD - 00 02 00 00 - 			< UNKNOWN, shader slot index?
+#20 DWORD - 89 00 00 00 - 			< index to color map name
+#21 DWORD - A2 00 00 00 - 			< index to 'normalMap'
+#22 DWORD - 00 03 00 00 - 			< UNKNOWN, shader slot index?
+#23 DWORD - AC 00 00 00 -			< index to normal map name
+#24 DWORD - C4 00 00 00 - 			< index to 'specularMap'
+#25 DWORD - 00 04 00 00 - 			< UNKNOWN, shader slot index?
+#26 DWORD - D0 00 00 00 - 			< index to specular texture 
+
+Numeric values are in hexadecimal:
+
+Techniqueset:  'phong_replace_spec' pos 68, possibly referenced at 38
+Material name: 'v_corefloor01' pos 7B, not referenced
+Texture name:  'v_core_floor_01' pos 89, possibly referenced at 4C
+Texture slot:  'colorMap' pos 99, possibly referenced at 44
+  ?            'normalMap' pos A2, possibly referenced at 50
+N-map name:    '~v_core_floor_01_n-gggr' pos AC, possibly referenced at 
+  ?            'specularMap' pos C4, possibly referenced at 5C
+S-map name:    '~v_core_floor_01_s-rgbl-11' pos D0, possibly referenced at 64
