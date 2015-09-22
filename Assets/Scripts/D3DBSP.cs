@@ -60,7 +60,7 @@ namespace Potion {
         public Vector2 UVToVector2() {
             Vector2 _uv = new Vector2(
                 uv[ 0 ],
-                1 - uv[ 1 ]
+                uv[ 1 ]
             );
 
             return _uv;
@@ -96,6 +96,8 @@ namespace Potion {
 
         FileStream fs;
         BinaryReader br;
+
+        MaterialCreator materialCreator;
 
         void Start()
         {
@@ -145,7 +147,9 @@ namespace Potion {
             Triangles = new List<Triangle>();
             TriangleSoups = new List<TriangleSoup>();
 
-            using( fs = new FileStream( "Assets/Resources/mp_carentan.d3dbsp", FileMode.Open, FileAccess.Read ) ) 
+            materialCreator = new MaterialCreator();
+
+            using( fs = new FileStream( Utils.CoD2Path + "main\\maps\\mp\\mp_carentan.d3dbsp", FileMode.Open, FileAccess.Read ) ) 
             {
                 using( br = new BinaryReader( fs, new ASCIIEncoding() ) ) 
                 {
@@ -153,9 +157,6 @@ namespace Potion {
                         StartReading();
                 }
             }
-
-            MaterialCreator m = new MaterialCreator();
-            m.CreateMaterial( "v_corefloor01" );
         }
 
         private void StartReading() {
@@ -219,7 +220,7 @@ namespace Potion {
             for( int i = 0; i < Lumps[0].Length; i++ ) {
                 MapMaterial m = new MapMaterial();
 
-                m.Name = Encoding.ASCII.GetString( br.ReadBytes(64) );
+                m.Name = Encoding.ASCII.GetString( br.ReadBytes( 64 ) ).Replace( "\0", string.Empty ).Trim();
                 m.flags = br.ReadInt64();
 
                 Materials.Add( m );
@@ -389,9 +390,13 @@ namespace Potion {
                     */
                     #endregion
                     // Load required material here
+                    Material newMat = materialCreator.CreateMaterial( Materials[currentSoup.material_id].Name );
+
                                                                      // noDraw
                     if( ( Materials[currentSoup.material_id].flags & 0x0000000100000080 ) == 0 )
                         go.SetActive( false );
+
+                    go.GetComponent<Renderer>().material = newMat;
 
                     m.vertices = vertices.ToArray();
                     m.triangles = triangleIndices.ToArray();
