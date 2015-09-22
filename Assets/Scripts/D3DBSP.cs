@@ -82,6 +82,7 @@ namespace Potion {
     }
 
     public class D3DBSP : MonoBehaviour {
+        public GameObject root;
 
         Dictionary<int, string> lumpNames;
 
@@ -96,7 +97,12 @@ namespace Potion {
         FileStream fs;
         BinaryReader br;
 
-        void Start() {
+        void Start()
+        {
+            Load();
+        }
+
+        void Load() {
             lumpNames = new Dictionary<int, string>(){
                 { 0, "Materials" },
                 { 1, "Lightmaps" },
@@ -139,7 +145,7 @@ namespace Potion {
             Triangles = new List<Triangle>();
             TriangleSoups = new List<TriangleSoup>();
 
-            using( fs = new FileStream( "Assets/Resources/mp_toujane.d3dbsp", FileMode.Open, FileAccess.Read ) ) 
+            using( fs = new FileStream( "Assets/Resources/mp_carentan.d3dbsp", FileMode.Open, FileAccess.Read ) ) 
             {
                 using( br = new BinaryReader( fs, new ASCIIEncoding() ) ) 
                 {
@@ -147,6 +153,9 @@ namespace Potion {
                         StartReading();
                 }
             }
+
+            MaterialCreator m = new MaterialCreator();
+            m.CreateMaterial( "v_corefloor01" );
         }
 
         private void StartReading() {
@@ -161,6 +170,22 @@ namespace Potion {
                 return;
 
             FillLumpList();
+        }
+
+        string GetHeaderIdentifier()
+        {
+            byte[] chunk;
+            chunk = br.ReadBytes( 5 );
+
+            StringBuilder ident = new StringBuilder();
+
+            for( int i = 0; i < 4; i++ )
+            {
+                ident.Append( (char) chunk[ i ] );
+            }
+            ident.Append( (int) chunk[ 4 ] );
+
+            return ident.ToString();
         }
 
         private void FillLumpList() {
@@ -186,20 +211,6 @@ namespace Potion {
             }
 
             CreateMeshMagic();
-        }
-
-        string GetHeaderIdentifier() {
-            byte[] chunk;
-            chunk = br.ReadBytes( 5 );
-
-            StringBuilder ident = new StringBuilder();
-
-            for( int i = 0; i < 4; i++ ) {
-                ident.Append( (char) chunk[i] );
-            }
-            ident.Append( (int) chunk[4] );
-
-            return ident.ToString();
         }
 
         private void FillMaterialList() {
@@ -306,6 +317,7 @@ namespace Potion {
                 TriangleSoup currentSoup = this.TriangleSoups[i];
 
                 GameObject go = GameObject.CreatePrimitive( PrimitiveType.Cube );
+                go.transform.parent = root.transform;
 
                 Mesh m = new Mesh();
                 go.GetComponent<MeshFilter>().mesh = m;
@@ -376,7 +388,7 @@ namespace Potion {
                     r.material.renderQueue = currentSoup.draw_order;
                     */
                     #endregion
-
+                    // Load required material here
                                                                      // noDraw
                     if( ( Materials[currentSoup.material_id].flags & 0x0000000100000080 ) == 0 )
                         go.SetActive( false );
@@ -384,7 +396,7 @@ namespace Potion {
                     m.vertices = vertices.ToArray();
                     m.triangles = triangleIndices.ToArray();
                     m.uv = uvs.ToArray();
-
+                    
                     m.RecalculateNormals();
 
                     vertices.Clear();
@@ -397,6 +409,10 @@ namespace Potion {
                 }
 
             }
+
+            //StaticBatchingUtility.Combine( root );
+
+            root.transform.localScale = new Vector3( 0.1f, 0.1f, 0.1f );
 
             GameObject.Destroy( gameObject );
         }
