@@ -1,5 +1,5 @@
 # CoD2Unity
-Call of Duty 2 D3DBSP and .IWI Map Loader
+Call of Duty 2 D3DBSP map file and .IWI material loader
 
 # Progress
 This Unity project can currently load D3DBSP and IWI files. It's only been tested on Call of Duty 2, and only on multiplayer maps (maps with the mp_ prefix)
